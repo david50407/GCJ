@@ -11,15 +11,24 @@ class String
 	alias :old_mul :*
 	def *(val)
 		if val.is_a? String
-			m, t = *MUL_TABLE[self.to_ijk_id][val.to_ijk_id]
-			m ^= (self.length > 1) ^ (val.length > 1)
-			return (m ? '-' : '') + t
+			return self.is_ijk_ne? ? self[-1] : "-#{self[0]}" if val == '-'
+			sign, t = *MUL_TABLE[self.to_ijk_id][val.to_ijk_id]
+			sign ^= (self.length > 1) ^ (val.length > 1)
+			return (sign ? '-' : '') + t
 		end
 		old_mul val
 	end
 
+	def is_ijk_ne?
+		self[0] == '-'
+	end
+
 	def to_ijk_id
 		%W(1 i j k).index self[-1]
+	end
+
+	def to_ijk
+		self.each_char.inject(&:*) || '1'
 	end
 end
 
@@ -57,13 +66,13 @@ gets.to_i.times do |t|
 		if i_pos[0] < k_pos[0]
 			x -= i_pos[0] + (x - k_pos[0] + 1)
 			x %= 4
-			ijk = ijk[(i_pos[1] + 1)..-1] + ijk * x + ijk[0...k_pos[1]]
+			ijk = ijk[(i_pos[1] + 1)..-1] + ijk.to_ijk * x + ijk[0...k_pos[1]]
 		elsif i_pos[0] == k_pos[0] and i_pos[1] < k_pos[1]
 			ijk = ijk[(i_pos[1] + 1)..(k_pos[1] - 1)]
 		else
 			break
 		end
-		v = '1' * (ijk.each_char.inject(&:*) || '1')
+		v = '1' * ijk.to_ijk
 		yes = true if v == 'j'
 	end
 	puts "Case #%d: %s" % [t + 1, yes ? "YES" : "NO"]
