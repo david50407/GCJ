@@ -13,7 +13,7 @@ class String
 		if val.is_a? String
 			return self.is_ijk_ne? ? self[-1] : "-#{self[0]}" if val == '-'
 			sign, t = *MUL_TABLE[self.to_ijk_id][val.to_ijk_id]
-			sign ^= (self.length > 1) ^ (val.length > 1)
+			sign ^= self.is_ijk_ne? ^ val.is_ijk_ne?
 			return (sign ? '-' : '') + t
 		end
 		old_mul val
